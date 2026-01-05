@@ -220,6 +220,7 @@ python -c "import data_juicer as dj; print(dj.__version__)"
 ```
 
 ## 4.文件夹说明
+见目录结构
 ## 5.使用流程
 ### 5.1 数据拉取与预处理
 

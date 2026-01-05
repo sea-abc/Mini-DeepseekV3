@@ -59,7 +59,7 @@ mini-deepseekv3/
     │   └── run_step2_starcoder.sh           # StarCoder清洗脚本
     ├── step3/                               # 数据处理第三步：Tokenizer
     │   ├── step3_prepare_data_for_pretrain.py # 数据转化成token并打包bin的脚本
-    │   ├── data_step3/                      # 数据处理第二步输出的文件夹 [注意这个空文件夹需要你自己创建！！！]
+    │   ├── data_step3/                      # 数据处理第三步输出的文件夹 [注意这个空文件夹需要你自己创建！！！]
     │   ├── tokenizer.json                   # DeepSeek官方Tokenizer模型
     │   ├── tokenizer_config.json            # DeepSeek官方Tokenizer配置
     │   └── lit_gpt/                         # LitGPT库(用于打包数据成bin文件)

@@ -1,14 +1,17 @@
 # 小型DeepSeek-V3预训练
 
-## 项目简介
+### 项目简介
 本项目是针对小型DeepSeek-V3模型的预训练实现，包含完整的数据处理、模型训练流程。适合在有限资源下进行大语言模型的预训练实验。
 
-## 主要特性
+### 主要特性
 - **目标**：从数据集拉取开始简要跑通整个预训练的流程
 - **技术实现**：DeepSpeed Zero-1数据并行训练、DeepSeekMOE、DeepSeekMTP、MLA、YARN（改进的旋转位置编码）、张量并行(列并行和行并行线性层)等
 - **适用场景**：在有限资源下进行大语言模型的预训练实验
 - **完整流程**：涵盖数据下载、预处理、模型训练
-# 1.目录结构
+## 1.目录结构
+
+**请仔细阅读这个目录，有一些子的空文件夹需要你自行创建**
+
 ```
 mini-deepseekv3/
 ├── requirements_pretraining.txt              # 预训练环境、数据预处理环境依赖
@@ -25,7 +28,7 @@ mini-deepseekv3/
 │   └── kernel.py                            # DeepSeek官方自定义算子代码
 │
 └── data/                                    # 数据处理目录
-    ├── raw_data/                            # 原始数据存储目录
+    ├── raw_data/                            # 原始数据存储目录 [注意这些子文件夹(空文件夹)需要你自己创建！！！]
     │   ├── ape/                             # 存储APE210K原始数据的文件夹
     │   ├── openr1math/                      # 存储OpenR1原始数据的文件夹
     │   ├── skypile/                         # 存储Skypile原始数据的文件夹
@@ -37,7 +40,7 @@ mini-deepseekv3/
     │   └── step1_pretrain_basic_dataprocess.py  # 转化成JSONL的脚本
     ├── step2/                               # 数据处理第二步：数据清洗
     │   ├── data_step1_split/                # JSONL分割成多个小的JSONL后的数据存储文件夹
-    │   ├── data_step2/                      # 数据处理第二步输出的文件夹
+    │   ├── data_step2/                      # 数据处理第二步输出的文件夹 [注意这些子文件夹(空文件夹)需要你自己创建！！！]
     │   │    ├──ape/                         # 存储APE210K清洗后数据的文件夹
     │   │    ├──openr1math/                  # 存储OpenR1清洗后数据的文件夹
     │   │    ├──skypile/                     # 存储Skypile清洗后数据的文件夹
@@ -56,14 +59,15 @@ mini-deepseekv3/
     │   └── run_step2_starcoder.sh           # StarCoder清洗脚本
     ├── step3/                               # 数据处理第三步：Tokenizer
     │   ├── step3_prepare_data_for_pretrain.py # 数据转化成token并打包bin的脚本
+    │   ├── data_step3/                      # 数据处理第二步输出的文件夹 [注意这个空文件夹需要你自己创建！！！]
     │   ├── tokenizer.json                   # DeepSeek官方Tokenizer模型
     │   ├── tokenizer_config.json            # DeepSeek官方Tokenizer配置
     │   └── lit_gpt/                         # LitGPT库(用于打包数据成bin文件)
     └── step4/                               # 数据处理第四步：Dataset封装
         └── step4_dataset.py
 ```
-# 2.环境要求
-## 2.1 会创建两个环境，如下：
+## 2.环境要求
+### 2.1 会创建两个环境，如下：
 | 序号  | 环境名称 | 主要用途 | 依赖文件 |
 | --- | --- | --- | --- |
 | 1   | `pretraining` | 预训练的主环境 | `requirements_pretraining.txt` |
@@ -78,15 +82,15 @@ mini-deepseekv3/
             ↓  (Datajucier数据清洗)-------------------------------------【Step 2】
           📂 cleaned JSONL
             ↓  (tokenizer预处理)----------------------------------------|
-          📂 Tokenized JSONL {"tokens": [...]}                          |【Step 3】
-            ↓  (token拼接，变成一个一个句子)----------------------------|
+          📂 Tokenized JSONL {"tokens": [...]}                         |【Step 3】
+            ↓  (token拼接，变成一个一个句子)----------------------------- |
           📂 Pretrain Data (bin/lmdb)
-		  	↓  (Dataset封装)----------------------------------------【Step4：这一步具体由预训练代码导入】
+		  	↓  (Dataset封装)---------------------------------------------【Step4：这一步具体由预训练代码导入】
 		  📂 Dataset (Pytorch)
 ```
 
-# 3.环境搭建
-## 3.1 **环境的详细搭建流程**：
+## 3.环境搭建
+### 3.1 **环境的详细搭建流程**：
 
 - **推荐使用autodl云端配置**
 
@@ -104,7 +108,7 @@ CPU 32 vCPU Intel(R) Xeon(R) Platinum 8352V CPU @ 2.10GHz
 自定义服务端口协议 6006端口：http 6008端口：http 
 网络 同一地区实例共享带宽
 ```
-### 3.1.1 下载此仓库
+#### 3.1.1 下载此仓库
 ```bash
 cd /root/autodl-tmp
 
@@ -118,7 +122,7 @@ mv temp_repo/* .
 rm -rf temp_repo
 ```
 
-### 3.1.2 环境创建
+#### 3.1.2 环境创建
 - 预训练**环境 pretraining**
 ```bash
 cd /root/autodl-tmp/mini-deepseekv3
@@ -215,11 +219,11 @@ pip install --upgrade jsonargparse
 python -c "import data_juicer as dj; print(dj.__version__)"
 ```
 
-# 4.文件夹说明
-# 5.使用流程
-## 5.1 数据拉取与预处理
+## 4.文件夹说明
+## 5.使用流程
+### 5.1 数据拉取与预处理
 
-### 5.1.1 数据集说明
+#### 5.1.1 数据集说明
 | 数据集编号 | 数据集名称 | 数据属性 | 数据量级 | 存储格式 | 是否经过数据清洗 |
 | --- | --- | --- | --- | --- | --- |
 | 1   | Skypile-150B | 中文文本 | 620GB | JSONL | 是   |
@@ -227,7 +231,7 @@ python -c "import data_juicer as dj; print(dj.__version__)"
 | 3   | Starcoder | 代码数据 | 768GB | Parquet | 是   |
 | 4   | OpenR1Math | 数学CoT数据 | 8G+ | JSONL | 是   |
 | 5   | **APE210K(用来跑通代码)** | **中文数学CoT数据** | 49MB | JSONL | 是   |
-### 5.1.2 <span style="color:red;">**数据（raw data）拉取**</span>
+#### 5.1.2 <span style="color:red;">**数据（raw data）拉取**</span>
 - 请自行申请[Huggingface账号](https://huggingface.co/)与[申请AccessToken](https://huggingface.co/settings/tokens)，注意代码数据集Starcoder还需要在[数据集页面](https://huggingface.co/datasets/bigcode/starcoderdata)进行申请
 - 首先需要将数据拉取到data/raw_data的各个子数据集目录下 **(这里都只拉取一点点作为示例，实际预训练时请尽量拉取所有数据)**
 - 数据拉取准备
@@ -306,7 +310,7 @@ chmod a+x hfd_revised.sh
   -x 4 -j 5 \
   --local-dir /root/autodl-tmp/mini-deepseekv3/data/raw_data/ape
 ```
-### 5.1.3 Step1：JSONL化
+#### 5.1.3 Step1：JSONL化
 ```bash
 cd /root/autodl-tmp/mini-deepseekv3/data/step1
 source /root/autodl-tmp/mini-deepseekv3/pretraining/bin/activate
@@ -314,7 +318,7 @@ source /root/autodl-tmp/mini-deepseekv3/pretraining/bin/activate
 # 数据会存储在data_step1中
 python step1_pretrain_basic_dataprocess.py main
 ```
-### 5.1.4 Step2：Datajucier数据清洗
+#### 5.1.4 Step2：Datajucier数据清洗
 ```bash
 cd /root/autodl-tmp/mini-deepseekv3/data/step2
 deactivate
@@ -362,7 +366,7 @@ pkill -9 python
 rm -rf /root/autodl-tmp/mini-deepseekv3/data/step2/data_jucier_cache
 rm -rf /root/autodl-tmp/mini-deepseekv3/data/step2/data_jucier_cache/temp
 ```
-### 5.1.5 Step3：Tokenizer与合并
+#### 5.1.5 Step3：Tokenizer与合并
 ```bash
 # 先删一些多余的带stats的json文件
 # 1. 先查看
@@ -383,7 +387,7 @@ cd /root/autodl-tmp/mini-deepseekv3/data/step3
 #【TIME WARNING：64进程并行】
 python step3_prepare_data_for_pretrain.py
 ```
-## 5.2 分布式预训练启动
+### 5.2 分布式预训练启动
 ```shell
 # 退出当前环境
 deactivate
@@ -399,12 +403,12 @@ mkdir -p ~/.triton/autotune
 # master_port:官方接口参数
 deepspeed --master_port 29500 --num_gpus=2 pretrain.py --epochs 10
 ```
-# 6.注意事项
+## 6.注意事项
 - 仅供个人学习使用，请勿商用
 - 本项目仅供学习和研究使用。相关项目的许可证请参考各自的开源协议。
 - 代码基于DeepSeek官方实现进行了适配和修改
   
-# 7.常见问题（FAQ）
+## 7.常见问题（FAQ）
 
 **Q1: 数据拉取方面的注意事项**
 
@@ -435,7 +439,7 @@ A: 检查以下几点：
 **Q4: 如何调整模型参数？**
 
 A: 将`model/config.py`中的参数配置直接复制到deepseekv3_mtp_model.py文件中，然后重新运行`test_model.py`验证。
-# 参考链接
+## 参考链接
 
 - [DeepSeek官方GitHub推理链接](https://github.com/deepseek-ai/DeepSeek-V3)
 - [DataJuicer官方GitHub链接](https://github.com/datajuicer/data-juicer)
